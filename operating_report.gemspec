@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = OperatingReport::VERSION
   spec.authors       = ["Kenji Akiyama"]
   spec.email         = ["artifactsauce@gmail.com"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
-  spec.homepage      = ""
+  spec.summary       = %q{A command line tool to handle operating reports.}
+  spec.description   = %q{}
+  spec.homepage      = "https://github.com/artifactsauce/operating_report"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
