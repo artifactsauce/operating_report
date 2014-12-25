@@ -44,8 +44,13 @@ module OperatingReport
     end
 
     desc "create [PERIOD]", "create a report. (parameter required)"
+    option :date
     def create(period)
       t = Time.now
+      if options[:date] then
+        date = *options[:date].split(/[-:\/\s]/)
+        t = Time.new(*date)
+      end
 
       case period
       when 'daily' then
