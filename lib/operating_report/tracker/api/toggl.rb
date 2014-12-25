@@ -52,7 +52,7 @@ module OperatingReport
           when Net::HTTPRedirection
             _fetch(URI.parse(@base + response['location']), limit - 1)
           else
-            response
+            response.value
           end
         end
       end
