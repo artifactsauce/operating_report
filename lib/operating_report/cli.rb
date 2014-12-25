@@ -74,7 +74,7 @@ module OperatingReport
       end
 
       body.each do |x, y|
-        dur = y['duration'] / (60 * 60)
+        dur = y['duration'].quo(60 * 60)
         printf "- %s （%.1fh）\n", x, dur
       end
     end
