@@ -43,6 +43,15 @@ module OperatingReport
 
     desc "create [PERIOD]", "create a report. (parameter required)"
     def create(period)
+      t = Time.now
+
+      case period
+      when 'daily' then
+        start_date = Time.new(t.year, t.mon, t.day, 0, 0, 0)
+        end_date =  Time.new(t.year, t.mon, t.day, 23, 59, 59)
+      else
+        abort("Undfined period.")
+      end
     end
 
     private
