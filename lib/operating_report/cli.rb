@@ -1,6 +1,7 @@
 # coding: utf-8
 require "thor"
 require "yaml"
+require "operating_report/tracker/api/toggl"
 
 module OperatingReport
   class CLI < Thor
@@ -31,7 +32,7 @@ module OperatingReport
       print "Toggl API Token: "
       api_token = STDIN.gets.chomp
 
-      config['tracking'] = {
+      config['tracker'] = {
         'api' => {
           'token' => api_token
         }
@@ -53,6 +54,24 @@ module OperatingReport
       else
         abort("Undfined period.")
       end
+
+      tog = OperatingReport::Tracker::Api::Toggl.new(
+        'token' => @config['tracker']['api']['token']
+      )
+      response = tog.get_time_entries(start_date, end_date)
+
+      body = {}
+      response.each do |x|
+        body[x['description']] = {} unless body[x['description']]
+        body[x['description']]['start'] = x['start'] unless body[x['description']]['start']
+        body[x['description']]['duration'] = 0 unless body[x['description']]['duration']
+        body[x['description']]['duration'] += x['duration'].to_i
+      end
+
+      body.each do |x, y|
+        dur = y['duration'] / (60 * 60)
+        printf "- %s （%.1fh）\n", x, dur
+      end
     end
 
     private
@@ -61,9 +80,6 @@ module OperatingReport
         init()
       end
       return YAML.load_file(config_file)
-    end
-
-    def _fetch_via_api(path)
     end
   end
 end
