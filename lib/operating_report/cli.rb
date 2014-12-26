@@ -57,7 +57,7 @@ module OperatingReport
         start_date = Time.new(t.year, t.mon, t.day, 0, 0, 0)
         end_date =  Time.new(t.year, t.mon, t.day, 23, 59, 59)
       else
-        abort("Undfined period.")
+        abort("Undefined period.")
       end
 
       tog = OperatingReport::Tracker::Api::Toggl.new(
