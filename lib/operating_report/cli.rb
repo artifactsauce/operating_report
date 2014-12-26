@@ -43,7 +43,7 @@ module OperatingReport
       end
     end
 
-    desc "create [deily|weekly]", "create a report. (parameter required)"
+    desc "create [daily|weekly]", "create a report. (parameter required)"
     option :date
     def create(period)
       t = Time.now
