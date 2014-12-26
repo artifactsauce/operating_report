@@ -56,6 +56,9 @@ module OperatingReport
       when 'daily' then
         start_date = Time.new(t.year, t.mon, t.day, 0, 0, 0)
         end_date =  Time.new(t.year, t.mon, t.day, 23, 59, 59)
+      when 'weekly' then
+        start_date = _find_monday(t)
+        end_date = _find_friday(t)
       else
         abort("Undefined period.")
       end
@@ -66,16 +69,24 @@ module OperatingReport
       response = tog.get_time_entries(start_date, end_date)
 
       body = {}
+      total_time = 0
       response.each do |x|
         body[x['description']] = {} unless body[x['description']]
         body[x['description']]['start'] = x['start'] unless body[x['description']]['start']
         body[x['description']]['duration'] = 0 unless body[x['description']]['duration']
         body[x['description']]['duration'] += x['duration'].to_i
+        total_time += x['duration'].to_i
       end
 
       body.each do |x, y|
-        dur = y['duration'].quo(60 * 60)
-        printf "- %s （%.2fh）\n", x, dur
+        case period
+        when 'daily' then
+          dur = y['duration'].quo(60 * 60)
+          printf "- %s （%.2fh）\n", x, dur
+        when 'weekly' then
+          ratio = y['duration'].to_f / total_time.to_f * 100
+          printf "- %s （%.1f%%）\n", x, ratio
+        end
       end
     end
 
@@ -85,6 +96,20 @@ module OperatingReport
         init()
       end
       return YAML.load_file(config_file)
+    end
+
+    def _find_monday(t)
+      loop do
+        return Time.new(t.year, t.mon, t.day, 0, 0, 0) if t.monday?
+        t = t - (60 * 60 * 24)
+      end
+    end
+
+    def _find_friday(t)
+      loop do
+        return Time.new(t.year, t.mon, t.day, 23, 59, 59) if t.friday?
+        t = t + (60 * 60 * 24)
+      end
     end
   end
 end
