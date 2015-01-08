@@ -60,6 +60,9 @@ module OperatingReport
       when 'weekly' then
         start_date = _find_monday(t)
         end_date = _find_friday(t)
+      when 'monthly' then
+        start_date = _find_start_of_month(t)
+        end_date = _find_end_of_month(t)
       else
         abort("Undefined period.")
       end
@@ -79,7 +82,8 @@ module OperatingReport
         total_time += x['duration'].to_i
       end
 
-      if period == 'weekly' then
+      case period
+      when 'weekly', 'monthly' then
         title = _generate_title(start_date, end_date)
         puts "Title: #{title}"
       end
@@ -89,7 +93,7 @@ module OperatingReport
         when 'daily' then
           dur = y['duration'].quo(60 * 60)
           printf "- %s （%.2fh）\n", x, dur
-        when 'weekly' then
+        when 'weekly', 'monthly' then
           ratio = y['duration'].to_f / total_time.to_f * 100
           printf "- %s （%.1f%%）\n", x, ratio
         end
@@ -118,6 +122,24 @@ module OperatingReport
           t = t - (60 * 60 * 24)
         else
           t = t + (60 * 60 * 24)
+        end
+      end
+    end
+
+    def _find_start_of_month(t)
+      return Time.new(t.year, t.mon, 1, 0, 0, 0)
+    end
+
+    def _find_end_of_month(t)
+      day = 31
+      loop do
+        end_of_month = Time.new(t.year, t.mon, day, 23, 59, 59)
+        # 指定した日付が無い場合にout of rangeになるのではなく、
+        # 次の月に繰り越した日付を返す（例：11/31 -> 12/1）。
+        if t.mon == end_of_month.mon then
+          return end_of_month
+        else
+          day -= 1
         end
       end
     end
