@@ -1,6 +1,7 @@
 # coding: utf-8
 require "thor"
 require "yaml"
+require "awesome_print"
 require "operating_report/tracker/api/toggl"
 
 module OperatingReport
