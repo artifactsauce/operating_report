@@ -1,15 +1,18 @@
 # coding: utf-8
+
 require "thor"
-require "yaml"
-require "awesome_print"
-require "operating_report/tracker/api/toggl"
+require "operating_report/exec/create/base"
+require "operating_report/exec/create/daily"
+require "operating_report/exec/create/weekly"
+require "operating_report/exec/create/monthly"
 
 module OperatingReport
   class CLI < Thor
+    class_option :config, :type => :string
+
     def initialize(*args)
       super
-      @config_file = ENV['HOME'] + '/.report'
-      @config = _load_config(@config_file)
+      OperatingReport::load_config(options[:config])
     end
 
     desc "init", "create a config file."
@@ -45,111 +48,28 @@ module OperatingReport
     end
 
     desc "create [daily|weekly|monthly]", "create a report. (parameter required)"
-    option :date
+    option :date, :type => :string
     def create(period)
+      period_models = {
+        'daily' => 'Daily',
+        'weekly' => 'Weekly',
+        'monthly' => 'Monthly',
+      }
+      unless period_models[period]
+        abort("Undefined period.")
+      end
+
       t = Time.now
       if options[:date] then
         date = *options[:date].split(/[-:\/\s]/)
         t = Time.new(*date)
       end
 
-      case period
-      when 'daily' then
-        start_date = Time.new(t.year, t.mon, t.day, 0, 0, 0)
-        end_date =  Time.new(t.year, t.mon, t.day, 23, 59, 59)
-      when 'weekly' then
-        start_date = _find_monday(t)
-        end_date = _find_friday(t)
-      when 'monthly' then
-        start_date = _find_start_of_month(t)
-        end_date = _find_end_of_month(t)
-      else
-        abort("Undefined period.")
-      end
-
-      tog = OperatingReport::Tracker::Api::Toggl.new(
-        'token' => @config['tracker']['api']['token']
-      )
-      response = tog.get_time_entries(start_date, end_date)
-
-      body = {}
-      total_time = 0
-      response.each do |x|
-        body[x['description']] = {} unless body[x['description']]
-        body[x['description']]['start'] = x['start'] unless body[x['description']]['start']
-        body[x['description']]['duration'] = 0 unless body[x['description']]['duration']
-        body[x['description']]['duration'] += x['duration'].to_i
-        total_time += x['duration'].to_i
-      end
-
-      case period
-      when 'weekly', 'monthly' then
-        title = _generate_title(start_date, end_date)
-        puts "Title: #{title}"
-      end
-
-      body.each do |x, y|
-        case period
-        when 'daily' then
-          dur = y['duration'].quo(60 * 60)
-          printf "- %s （%.2fh）\n", x, dur
-        when 'weekly', 'monthly' then
-          ratio = y['duration'].to_f / total_time.to_f * 100
-          printf "- %s （%.1f%%）\n", x, ratio
-        end
-      end
+      OperatingReport::Exec::Create.const_get(period_attr[period]).new(
+        :datetime => t
+      ).run()
     end
 
     private
-    def _load_config(config_file)
-      unless File.exist?(config_file) then
-        init()
-      end
-      return YAML.load_file(config_file)
-    end
-
-    def _find_monday(t)
-      loop do
-        return Time.new(t.year, t.mon, t.day, 0, 0, 0) if t.monday?
-        t = t - (60 * 60 * 24)
-      end
-    end
-
-    def _find_friday(t)
-      loop do
-        return Time.new(t.year, t.mon, t.day, 23, 59, 59) if t.friday?
-        if t.saturday? || t.sunday? then
-          t = t - (60 * 60 * 24)
-        else
-          t = t + (60 * 60 * 24)
-        end
-      end
-    end
-
-    def _find_start_of_month(t)
-      return Time.new(t.year, t.mon, 1, 0, 0, 0)
-    end
-
-    def _find_end_of_month(t)
-      day = 31
-      loop do
-        end_of_month = Time.new(t.year, t.mon, day, 23, 59, 59)
-        # 指定した日付が無い場合にout of rangeになるのではなく、
-        # 次の月に繰り越した日付を返す（例：11/31 -> 12/1）。
-        if t.mon == end_of_month.mon then
-          return end_of_month
-        else
-          day -= 1
-        end
-      end
-    end
-
-    def _generate_title(start_date, end_date)
-      _get_formated_date(start_date) + ' - ' + _get_formated_date(end_date)
-    end
-
-    def _get_formated_date(t)
-      t.strftime('%Y/%m/%d')
-    end
   end
 end

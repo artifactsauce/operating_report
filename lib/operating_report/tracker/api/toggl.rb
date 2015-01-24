@@ -21,6 +21,12 @@ module OperatingReport
           )
         end
 
+        def get_project_data(project_id)
+          return _fetch_via_api(
+            "projects/#{project_id}", {}
+          )
+        end
+
         private
         def _fetch_via_api(path, queries)
           @base = 'https://www.toggl.com'
