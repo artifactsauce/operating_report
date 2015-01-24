@@ -65,7 +65,7 @@ module OperatingReport
         t = Time.new(*date)
       end
 
-      OperatingReport::Exec::Create.const_get(period_attr[period]).new(
+      OperatingReport::Exec::Create.const_get(period_models[period]).new(
         :datetime => t
       ).run()
     end
