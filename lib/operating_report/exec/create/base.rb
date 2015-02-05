@@ -19,8 +19,8 @@ module OperatingReport
 
           body, total_time = _get_time_entries(start_date, end_date)
 
-          printf "Title: %s\n", _generate_title(start_date, end_date)
-          printf "Total Time: %.2fh\n", total_time.quo(60 * 60)
+          printf "日付: %s\n", _generate_title(start_date, end_date)
+          printf "作業時間: %.2fh\n", total_time.quo(60 * 60)
 
           output_body(body, total_time)
         end
