@@ -33,7 +33,8 @@ module OperatingReport
             pid = r['pid'] || 0;
             desc = r['description'] || '【無記載】'
             body[pid] = {items:{}, duration:0} unless body[pid]
-            body[pid][:items][desc] = {duration:0} unless body[pid][:items][desc]
+            body[pid][:items][desc] = {duration:0, tags:[]} unless body[pid][:items][desc]
+            body[pid][:items][desc][:tags].concat(r['tags']) if r['tags']
             body[pid][:items][desc][:duration] += r['duration'].to_i
             body[pid][:duration] += r['duration'].to_i
             total_time += r['duration'].to_i

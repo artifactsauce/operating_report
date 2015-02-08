@@ -9,7 +9,8 @@ module OperatingReport
             printf "\n### %s\n\n", _get_project_name(pid)
             body[pid][:items].each do |desc, d|
               duration = d[:duration].quo(60 * 60)
-              printf "- %s （%.2fh）\n", desc, duration
+              tags = d[:tags].uniq.map {|s| "【#{s}】"} .join('') unless d[:tags].empty?
+              printf "- %s %s （%.2fh）\n", desc, tags, duration
             end
           end
         end
