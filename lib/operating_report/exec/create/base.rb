@@ -17,7 +17,7 @@ module OperatingReport
           start_date = _get_start_date(@t)
           end_date = _get_end_date(@t)
 
-          body, total_time = _get_time_entries(start_date, end_date)
+          body, total_time = _get_entries(start_date, end_date)
 
           printf "日付: %s\n", _generate_title(start_date, end_date)
           printf "作業時間: %.2fh\n", total_time.quo(60 * 60)
@@ -25,7 +25,7 @@ module OperatingReport
           output_body(body, total_time)
         end
 
-        def _get_time_entries(start_date, end_date)
+        def _get_entries(start_date, end_date)
           response = @tog.get_time_entries(start_date, end_date)
           body = {}
           total_time = 0
