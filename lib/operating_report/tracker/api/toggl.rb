@@ -27,6 +27,12 @@ module OperatingReport
           )
         end
 
+        def get_client_data(client_id)
+          return _fetch_via_api(
+            "clients/#{client_id}", {}
+          )
+        end
+
         private
         def _fetch_via_api(path, queries)
           @base = 'https://www.toggl.com'

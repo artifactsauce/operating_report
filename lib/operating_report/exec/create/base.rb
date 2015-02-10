@@ -1,6 +1,7 @@
 # coding: utf-8
 
 require "operating_report/tracker/api/toggl"
+require "awesome_print"
 
 module OperatingReport
   module Exec
@@ -11,6 +12,7 @@ module OperatingReport
           @tog = OperatingReport::Tracker::Api::Toggl.new(
             'token' => OperatingReport::config['tracker']['api']['token']
           )
+          @map = {}
         end
 
         def run()
@@ -29,8 +31,10 @@ module OperatingReport
           response = @tog.get_time_entries(start_date, end_date)
           body = {}
           total_time = 0
+          pids = []
           response.each do |r|
             pid = r['pid'] || 0;
+            pids << pid if pid != 0
             desc = r['description'] || '【無記載】'
             body[pid] = {items:{}, duration:0} unless body[pid]
             body[pid][:items][desc] = {duration:0, tags:[]} unless body[pid][:items][desc]
@@ -39,13 +43,52 @@ module OperatingReport
             body[pid][:duration] += r['duration'].to_i
             total_time += r['duration'].to_i
           end
-          return body, total_time
+          pids.uniq!
+          _store_project_map(pids)
+
+          data = {}
+          body.each do |pid, d|
+            cid = 0
+            if @map[:pid][pid] && @map[:pid][pid]['cid']
+              cid = @map[:pid][pid]['cid']
+            end
+            data[cid] = {duration:0, items:{}} unless data[cid]
+            # data[cid][:items][pid] = {} unless data[cid][:items][pid]
+            data[cid][:items][pid] = d
+            data[cid][:duration] += d[:duration]
+          end
+          return data, total_time
         end
 
         def _get_project_name(pid)
           return 'その他' if pid == 0
-          response = @tog.get_project_data(pid.to_s)
-          return response['data']['name']
+          return @map[:pid][pid]['name']
+        end
+
+        def _get_client_name(cid)
+          return 'その他' if cid == 0
+          return @map[:cid][cid]['name']
+        end
+
+        def _store_project_map(pids)
+          cids = []
+          pids.each do |pid|
+            next if pid == 0
+            response = @tog.get_project_data(pid.to_s)
+            @map[:pid] = {} unless @map[:pid]
+            @map[:pid][pid] = response['data']
+            cids << response['data']['cid'] if response['data']['cid']
+          end
+          _store_client_map(cids)
+        end
+
+        def _store_client_map(cids)
+          cids.each do |cid|
+            next if cid == 0
+            response = @tog.get_client_data(cid.to_s)
+            @map[:cid] = {} unless @map[:cid]
+            @map[:cid][cid] = response['data']
+          end
         end
 
         def _get_title()

@@ -4,14 +4,19 @@ module OperatingReport
   module Exec
     module Create
       class Weekly < OperatingReport::Exec::Create::Base
-        def output_body(body, total_time)
-          body.each_key do |pid|
-            printf "\n### %s （%.1f%%）\n\n",
-                   _get_project_name(pid),
-                   body[pid][:duration].to_f / total_time.to_f * 100
-            body[pid][:items].each do |desc, d|
-              tags = d[:tags].uniq.map {|s| "【#{s}】"} .join('') unless d[:tags].empty?
-              printf "- %s %s\n", desc, tags
+        def output_body(data, total_time)
+          data.each do |cid, d1|
+            printf "\n## %s （%.1f%%）\n",
+                   _get_client_name(cid),
+                   d1[:duration].to_f / total_time.to_f * 100
+            d1[:items].each do |pid, d2|
+              printf "\n### %s （%.1f%%）\n\n",
+                     _get_project_name(pid),
+                     d2[:duration].to_f / total_time.to_f * 100
+              d2[:items].each do |desc, d|
+                tags = d[:tags].uniq.map {|s| "【#{s}】"} .join('') unless d[:tags].empty?
+                printf "- %s %s\n", desc, tags
+              end
             end
           end
         end
