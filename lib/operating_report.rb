@@ -4,7 +4,7 @@ require "operating_report/cli"
 
 module OperatingReport
   def self.load_config(config)
-    @config_file = config.nil? ? ENV['HOME'] + '/.report' : config
+    @config_file = config.nil? ? ENV['HOME'] + '/.operating_report' : config
     unless File.exist?(@config_file) then
       abort("Configuration file not founds.")
     end
