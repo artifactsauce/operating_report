@@ -1,7 +1,6 @@
 # coding: utf-8
 
 require "operating_report/tracker/api/toggl"
-require "awesome_print"
 
 module OperatingReport
   module Exec
@@ -53,7 +52,6 @@ module OperatingReport
               cid = @map[:pid][pid]['cid']
             end
             data[cid] = {duration:0, items:{}} unless data[cid]
-            # data[cid][:items][pid] = {} unless data[cid][:items][pid]
             data[cid][:items][pid] = d
             data[cid][:duration] += d[:duration]
           end
