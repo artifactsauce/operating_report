@@ -28,6 +28,10 @@ module OperatingReport
 
         def _get_entries(start_date, end_date)
           response = @tog.get_time_entries(start_date, end_date)
+          if response.count == 100 then
+            abort "[\e[31mError\e[0m] The record number in the period is possibly over 100."
+          end
+
           body = {}
           total_time = 0
           pids = []
