@@ -13,19 +13,19 @@ gem 'operating_report',  '~> 0.1.0', github: "artifactsauce/operating_report", b
 
 And then execute:
 
-    $ bundle install
+    $ bundle install --path vendor/bundle
 
 ## Usage
 
 Firstly, create a config file.
 
-    $ operating_report init
+    $ bundle exec operating_report init
 
 Create the report with a specified period.
 
-    $ operating_report create daily
-    $ operating_report create weekly
-    $ operating_report create monthly
+    $ bundle exec operating_report create daily
+    $ bundle exec operating_report create weekly
+    $ bundle exec operating_report create monthly
 
 ## Known problems
 
