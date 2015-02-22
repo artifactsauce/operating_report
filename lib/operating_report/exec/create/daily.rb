@@ -13,7 +13,7 @@ module OperatingReport
               d2[:items].each do |desc, d|
                 duration = d[:duration].quo(60 * 60)
                 tags = d[:tags].uniq.map {|s| "【#{s}】"} .join('') unless d[:tags].empty?
-                printf "- %s %s （%.2fh）\n", desc, tags, duration
+                printf "- %s%s （%.2fh）\n", desc, tags, duration
               end
             end
           end

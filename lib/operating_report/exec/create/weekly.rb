@@ -15,7 +15,7 @@ module OperatingReport
                      d2[:duration].to_f / total_time.to_f * 100
               d2[:items].each do |desc, d|
                 tags = d[:tags].uniq.map {|s| "【#{s}】"} .join('') unless d[:tags].empty?
-                printf "- %s %s\n", desc, tags
+                printf "- %s%s\n", desc, tags
               end
             end
           end
