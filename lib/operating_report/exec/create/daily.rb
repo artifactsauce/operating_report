@@ -6,10 +6,10 @@ module OperatingReport
       class Daily < OperatingReport::Exec::Create::Base
         def output_body(data, total_time)
           data.each do |cid, d1|
-            duration = d1[:duration].quo(60 * 60)
-            printf "\n## %s （%.2fh）\n", _get_client_name(cid), duration
+            printf "\n## %s\n", _get_client_name(cid)
             d1[:items].each do |pid, d2|
-              printf "\n### %s\n\n", _get_project_name(pid)
+              duration = d2[:duration].quo(60 * 60)
+              printf "\n### %s （%.2fh）\n\n", _get_project_name(pid), duration
               d2[:items].each do |desc, d|
                 duration = d[:duration].quo(60 * 60)
                 tags = d[:tags].uniq.map {|s| "【#{s}】"} .join('') unless d[:tags].empty?

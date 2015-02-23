@@ -6,9 +6,7 @@ module OperatingReport
       class Monthly < OperatingReport::Exec::Create::Base
         def output_body(data, total_time)
           data.each do |cid, d1|
-            printf "\n## %s （%.1f%%）\n",
-                   _get_client_name(cid),
-                   d1[:duration].to_f / total_time.to_f * 100
+            printf "\n## %s\n", _get_client_name(cid)
             d1[:items].each do |pid, d2|
               printf "\n### %s （%.1f%%）\n\n",
                      _get_project_name(pid),
